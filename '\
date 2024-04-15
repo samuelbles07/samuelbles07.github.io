@@ -1,0 +1,34 @@
++++
+title = "About"
++++
+
+## About Me
+
+{{< figure class="avatar" src="/avatar.jpg" alt="avatar">}}
+
+Hi! I'm Samuel Siburian, a driven engineer with over 6 years of professional experience in the tech industry. Ever since I was young, I've been fascinated by how things work, often taking apart things to explore their inner workings. This early curiosity grow during college while competing in robotics tournaments, leading me to a career dedicated to implementing IoT into innovative solutions.
+
+## Expertise & Skills
+
+**Keyword:** C, C++, Python, ESP32, Bash, Linux, Embedded Linux, BLE, WiFi, MQTT, Git, CI/CD, Docker, Prometheus, Grafana  
+- **System Design**
+
+Specialized in designing efficient and scalable IoT architectures by defining requirements, performing logical decompositions, and ensuring alignment among stakeholders for each component.
+
+- **Firmware Development**
+
+Proficient in designing and developing firmware solutions tailored for MCUs, with a focus on the Espressif ESP32 chip family, ensuring maintainability and reliability.
+
+- **Embedded Software Development**
+
+Experienced in designing and developing services for edge computing solutions in embedded Linux or Linux environments.
+
+- **IoT Connectivity and Protocols**
+
+Experienced in selecting and implementing appropriate connectivity solutions and protocols for devices and services, ensuring seamless communication and compatibility with the requirements.
+
+- **oneM2M Standards** 
+
+Experienced on adopting oneM2M standards to minimize cloud vendor dependencies and optimize operational cost-efficiency.
+
+**Keyword:** C, C++, Python, ESP32, Bash, Linux, Embedded Linux, BLE, WiFi, MQTT, Git, CI/CD, Docker, Prometheus, Grafana  

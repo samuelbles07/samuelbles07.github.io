@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>About on WHAT??</title>
+    <link>http://localhost:1313/</link>
+    <description>Recent content in About on WHAT??</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Sun, 14 Apr 2024 15:59:06 +0700</lastBuildDate>
+    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Tests</title>
+      <link>http://localhost:1313/tests/</link>
+      <pubDate>Sun, 14 Apr 2024 15:59:06 +0700</pubDate>
+      <guid>http://localhost:1313/tests/</guid>
+      <description>My testing post Musang king cool</description>
+    </item>
+    <item>
+      <title>Contact</title>
+      <link>http://localhost:1313/contact/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/contact/</guid>
+      <description> Email: foo@xyz.com Phone: +91-123123 Mailing Address 221B, Baker Street&#xA;London&#xA;United Kingdom&#xA;Social Facebook Twitter Google+ </description>
+    </item>
+  </channel>
+</rss>
