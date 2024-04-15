@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>About on WHAT??</title>
+    <title>About on bles.tech</title>
     <link>//localhost:1313/</link>
-    <description>Recent content in About on WHAT??</description>
+    <description>Recent content in About on bles.tech</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <lastBuildDate>Sun, 14 Apr 2024 15:59:06 +0700</lastBuildDate>
@@ -20,7 +20,7 @@
       <link>//localhost:1313/contact/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>//localhost:1313/contact/</guid>
-      <description> Email: foo@xyz.com Phone: +91-123123 Mailing Address 221B, Baker Street&#xA;London&#xA;United Kingdom&#xA;Social Facebook Twitter Google+ </description>
+      <description> Email: hi.samuelsiburian@gmail.com Telegram: http://t.me/samuelbles Social LinkedIn: https://www.linkedin.com/in/samuelsiburian </description>
     </item>
   </channel>
 </rss>

@@ -2,23 +2,9 @@
 title = "Contact"
 +++
 
-* Email: [foo@xyz.com](mailto:foo@xyz.com)
-* Phone: [+91-123123](tel:+91-123123)
-
----
-
-## Mailing Address
-
-> 221B, Baker Street
->
-> London
->
-> United Kingdom
-
----
+* Email: [hi.samuelsiburian@gmail.com](mailto:hi.samuelsiburian@gmail.com)
+* Telegram: [http://t.me/samuelbles](https://t.me/samuelbles)
 
 ## Social
 
-1. [Facebook](#)
-2. [Twitter](#)
-3. [Google+](#)
+1. LinkedIn: [https://www.linkedin.com/in/samuelsiburian](https://www.linkedin.com/in/samuelsiburian/) 

@@ -36,9 +36,20 @@ Experienced on adopting oneM2M standards to minimize cloud vendor dependencies a
 
 Throughout my career, i've had the opportunity to work on a diverse project across various industries, sharpen my technical and interpersonal skills. My hands-on experience includes:
 
-- Implementing IoT end to end solutions projects for FMCG, OOH and hospitality sectors.
-- Led multiple projects as a technical lead, guiding cross-functional teams from ideation and research phases to development, deployment, and operations. Utilized an agile approach to adapt to constraints such as timelines and resources, ensuring successful project delivery and stakeholder satisfaction.
-- Collaborating as key team member with cross-functional teams to design, develop, and deploy IoT solutions that meet diverse business requirements.
-- Acted as an individual contributor, conducting research to explore potential solutions and innovations. Managed timelines, provide regular reports, and maintained comprehensive documentation throughout the research and development process.
+- **End-to-End IoT Solution Implementation**
+
+Implementing IoT end to end solutions projects for FMCG, OOH and hospitality sectors.
+
+- **Technical Leadership and Project Management** 
+
+Led multiple projects as a technical lead, guiding cross-functional teams from ideation and research phases to development, deployment, and operations. Utilized an agile approach to adapt to constraints such as timelines and resources, ensuring successful project delivery and stakeholder satisfaction.
+
+- **Cross-Functional Collaboration**
+
+Collaborating as key team member with cross-functional teams to design, develop, and deploy IoT solutions that meet diverse business requirements.
+
+- **Research and Development** 
+
+Acted as an individual contributor, conducting research to explore potential solutions and innovations. Managed timelines, provide regular reports, and maintained comprehensive documentation throughout the research and development process.
 
 > For more info on my profesional journey, please click here.
