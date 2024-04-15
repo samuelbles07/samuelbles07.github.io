@@ -1,5 +1,5 @@
 title = "WHAT??"
-baseURL = "https://example.com"
+baseURL = "https://samuelbles07.github.io/personal-site/"
 theme = "researcher"
 disableKinds = ["taxonomy", "term"]
 enableEmoji = true
