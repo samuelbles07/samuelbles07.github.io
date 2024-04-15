@@ -4,7 +4,7 @@ title = "About"
 
 ## About Me
 
-{{< figure class="avatar" src="/avatar.jpg" alt="avatar">}}
+{{< figure class="avatar" src="/avatar.png" alt="avatar">}}
 
 Hi! I'm Samuel Siburian, a driven engineer with over 6 years of professional experience in the tech industry. Ever since I was young, I've been fascinated by how things work, often taking apart things to explore their inner workings. This early curiosity grow during college while competing in robotics tournaments, leading me to a career dedicated to implementing IoT into innovative solutions.
 
