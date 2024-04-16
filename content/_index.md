@@ -10,7 +10,7 @@ Hi! I'm Samuel Siburian, a driven engineer with over 6 years of professional exp
 
 ## Expertise & Skills
 
-> **Keyword:** C, C++, Python, ESP32, Bash, Linux, Embedded Linux, BLE, WiFi, MQTT, Git, CI/CD, Docker, Prometheus, Grafana  
+> **Keyword:** C, C++, Python, ESP32, Bash, Linux, Embedded Linux, BLE, WiFi, MQTT, HTTP, Git, CI/CD, Docker, Prometheus, Grafana  
 
 - **System Design**
 
