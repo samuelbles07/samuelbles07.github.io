@@ -30,9 +30,9 @@ googleAnalytics = ""  # add your tracking id
     title = "E-mail"
     url = "mailto:hi.samuelsiburian@gmail.com"
   [[params.socialIcons]]
-    icon = "fab fa-telegram"
-    title = "Telegram"
-    url = "https://t.me/samuelbles"
+    icon = "fab fa-github"
+    title = "Github"
+    url = "https://github.com/samuelbles07"
   
 [permalinks]
   "/" = "/:filename"
