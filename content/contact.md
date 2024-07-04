@@ -2,7 +2,7 @@
 title = "Contact"
 +++
 
-* Email: [hi.samuelsiburian@gmail.com](mailto:hi.samuelsiburian@gmail.com)
+* Email: [work.samuelsiburian@gmail.com](mailto:work.samuelsiburian@gmail.com)
 * Telegram: [http://t.me/samuelbles](https://t.me/samuelbles)
 
 ## Social
