@@ -16,7 +16,8 @@ _* with up to 1500 device online_
 {{< youtube id=wjAGXXEISe8 start=717 >}}
 
 </br>
-</br>
+
+---
 
 ## Adroady
 
@@ -36,12 +37,46 @@ _* with up to 1500 device online_
 {{< youtube PZ_sqlKS8UA >}}
 
 </br>
-</br>
+
+---
 
 ## GetGO
 
-- Embedded GUI development
+- Embedded linux GUI development
 - Multiple camera stream and object detection
 - Payment Integration
 
 {{< youtube lmh_BBE1l6Y >}}
+
+</br>
+
+---
+
+## DycodeX
+
+#### Bike Sharing
+
+- Develop firmware for battery-powered device
+- BLE communication to mobile app with custom encryption 
+- Track fleet using GPS module
+
+{{< youtube id=ZmV4TqWnZiw start=84 >}}
+
+<!-- #### Meeting room tablet -->
+
+
+
+<!-- #### LoRa based Panic Button -->
+
+#### Others
+
+{{< figure class="lora-trial" src="/lora-trial.JPG" alt="LPWAN Trial">}}
+
+> LPWAN trial with Ministry of Communication and Informatics to define LPWAN frequency regulation in Indonesia
+
+<!-- 
+
+- Lora panic button
+- NBIoT trial
+- Meeting room tablets
+-  -->
