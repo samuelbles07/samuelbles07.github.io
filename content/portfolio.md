@@ -70,7 +70,7 @@ _* with up to 1500 device online_
 
 #### Others
 
-{{< figure class="lora-trial" src="/lora-trial.JPG" alt="LPWAN Trial">}}
+{{< figure class="lora-trial" src="/lora-trials.jpeg" alt="LPWAN Trial">}}
 
 > LPWAN trial with Ministry of Communication and Informatics to define LPWAN frequency regulation in Indonesia
 
