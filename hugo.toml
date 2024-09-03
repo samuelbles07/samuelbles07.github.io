@@ -4,7 +4,7 @@ theme = "researcher"
 disableKinds = ["taxonomy", "term"]
 enableEmoji = true
 math = false          # enable KaTeX (https://katex.org/) globally
-googleAnalytics = "G-FZTGV7VYX3"  # add your tracking id
+# googleAnalytics = "G-FZTGV7VYX3"  # add your tracking id
 
 [params]
   author = "Olivier Roques"
@@ -60,3 +60,7 @@ googleAnalytics = "G-FZTGV7VYX3"  # add your tracking id
 
 [markup.goldmark.renderer]
   unsafe = true  # allow raw HTML in markdown files
+
+[services]
+  [services.googleAnalytics]
+    ID = "G-FZTGV7VYX3"
