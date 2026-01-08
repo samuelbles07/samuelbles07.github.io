@@ -197,7 +197,7 @@
     const term = new Terminal({
       cols: 120,
       rows: 40,
-      scrollback: 100000
+      scrollback: Number.MAX_SAFE_INTEGER  // Effectively unlimited
     });
     term.open(document.getElementById('terminal'));
 
