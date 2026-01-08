@@ -6,6 +6,7 @@
   <title>ESP Logger</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@4.19.0/css/xterm.css">
   <script src="https://cdn.jsdelivr.net/npm/xterm@4.19.0/lib/xterm.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xterm-addon-search@0.8.2/lib/xterm-addon-search.js"></script>
   <style>
     * {
       margin: 0;
@@ -164,6 +165,44 @@
       border-bottom: 2px solid #f5c6cb;
       display: none;
     }
+
+    #search-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-left: auto;
+    }
+
+    #searchInput {
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      width: 200px;
+    }
+
+    #searchInput:focus {
+      outline: none;
+      border-color: #007bff;
+    }
+
+    .search-btn {
+      padding: 0.5rem 0.8rem;
+      background-color: #6c757d;
+      color: white;
+      font-size: 0.9rem;
+    }
+
+    .search-btn:hover:not(:disabled) {
+      background-color: #5a6268;
+    }
+
+    #search-info {
+      font-size: 0.85rem;
+      color: #666;
+      min-width: 60px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -182,6 +221,13 @@
       <button id="resetBtn" disabled>Reset Device</button>
       <button id="saveBtn">Save Log</button>
       <button id="clearBtn">Clear Log</button>
+
+      <div id="search-container">
+        <input type="text" id="searchInput" placeholder="Search logs..." />
+        <button id="searchPrevBtn" class="search-btn">↑</button>
+        <button id="searchNextBtn" class="search-btn">↓</button>
+        <span id="search-info"></span>
+      </div>
     </div>
 
     <div id="log-container">
@@ -200,6 +246,10 @@
       scrollback: Number.MAX_SAFE_INTEGER  // Effectively unlimited
     });
     term.open(document.getElementById('terminal'));
+
+    // Initialize search addon
+    const searchAddon = new SearchAddon.SearchAddon();
+    term.loadAddon(searchAddon);
 
     // Application state
     const appState = {
@@ -223,7 +273,11 @@
       saveBtn: document.getElementById('saveBtn'),
       clearBtn: document.getElementById('clearBtn'),
       statusText: document.getElementById('status-text'),
-      statusDot: document.getElementById('status-dot')
+      statusDot: document.getElementById('status-dot'),
+      searchInput: document.getElementById('searchInput'),
+      searchPrevBtn: document.getElementById('searchPrevBtn'),
+      searchNextBtn: document.getElementById('searchNextBtn'),
+      searchInfo: document.getElementById('search-info')
     };
 
     // Check browser support
@@ -540,12 +594,75 @@
       }
     }
 
+    // Search functionality
+    function performSearch(query) {
+      if (!query) {
+        elements.searchInfo.textContent = '';
+        return;
+      }
+
+      // Find first match
+      const found = searchAddon.findNext(query, { incremental: false });
+
+      // Update search info
+      elements.searchInfo.textContent = found ? 'Found' : 'No results';
+    }
+
+    function searchNext() {
+      const query = elements.searchInput.value;
+      if (!query) return;
+
+      searchAddon.findNext(query);
+    }
+
+    function searchPrevious() {
+      const query = elements.searchInput.value;
+      if (!query) return;
+
+      searchAddon.findPrevious(query);
+    }
+
     // Wire up event listeners
     elements.connectBtn.addEventListener('click', connectDevice);
     elements.stopBtn.addEventListener('click', stopLogging);
     elements.resetBtn.addEventListener('click', resetDevice);
     elements.saveBtn.addEventListener('click', saveLog);
     elements.clearBtn.addEventListener('click', clearLog);
+
+    // Search event listeners
+    elements.searchInput.addEventListener('input', (e) => {
+      performSearch(e.target.value);
+    });
+
+    elements.searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        if (e.shiftKey) {
+          searchPrevious();
+        } else {
+          searchNext();
+        }
+      }
+    });
+
+    elements.searchNextBtn.addEventListener('click', searchNext);
+    elements.searchPrevBtn.addEventListener('click', searchPrevious);
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      // Ctrl+F or Cmd+F to focus search
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault();
+        elements.searchInput.focus();
+        elements.searchInput.select();
+      }
+
+      // Escape to clear search and unfocus
+      if (e.key === 'Escape' && document.activeElement === elements.searchInput) {
+        elements.searchInput.value = '';
+        elements.searchInfo.textContent = '';
+        elements.searchInput.blur();
+      }
+    });
 
     // Initialize app
     function initializeApp() {
