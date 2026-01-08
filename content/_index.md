@@ -6,11 +6,13 @@ title = "About"
 
 {{< figure class="avatar" src="/avatar.png" alt="avatar">}}
 
-Hi! I'm Samuel Siburian, a driven engineer with over 6 years of professional experience in the tech industry. Ever since I was young, I've been fascinated by how things work, often taking apart things to explore their inner workings. This early curiosity grow during college while competing in robotics tournaments, leading me to a career dedicated to implementing IoT into innovative solutions.
+Hi! I'm Samuel Siburian, a driven engineer with over 8 years of professional experience in the tech industry. Ever since I was young, I've been fascinated by how things work, often taking apart things to explore their inner workings. This early curiosity grow during college while competing in robotics tournaments, leading me to a career dedicated to implementing IoT into innovative solutions.
 
 ## Expertise & Skills
 
-> **Keyword:** C, C++, Python, ESP32, Bash, Linux, Embedded Linux, BLE, WiFi, MQTT, HTTP, Git, CI/CD, Docker, Prometheus, Grafana  
+> **Focus:** Firmware, Backend, System Design, and Infrastructure
+>
+> **Stack:** C/C++, Python, TypeScript · Embedded & Linux systems · BLE/Wi-Fi/MQTT/CoAP · Docker, CI/CD, Monitoring
 
 - **System Design**
 
