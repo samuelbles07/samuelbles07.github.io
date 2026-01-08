@@ -210,7 +210,9 @@
       device: null,
       deviceInfo: null,
       reconnectDelay: 1000,
-      readLoopActive: false
+      readLoopActive: false,
+      lineBuffer: '',
+      isNewLine: true
     };
 
     // Get DOM elements
@@ -237,6 +239,40 @@
     // Sleep helper function
     function sleep(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // Format timestamp for log lines
+    function getTimestamp() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      const millis = String(now.getMilliseconds()).padStart(3, '0');
+      return `[${hours}:${minutes}:${seconds}.${millis}]`;
+    }
+
+    // Process incoming data with timestamps
+    function writeWithTimestamp(data) {
+      // Convert Uint8Array to string
+      const text = new TextDecoder().decode(data);
+
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+
+        // If this is the start of a new line, add timestamp
+        if (appState.isNewLine) {
+          term.write(getTimestamp() + ' ');
+          appState.isNewLine = false;
+        }
+
+        // Write the character
+        term.write(char);
+
+        // Check if this is a newline
+        if (char === '\n') {
+          appState.isNewLine = true;
+        }
+      }
     }
 
 
@@ -303,8 +339,8 @@
 
           if (!value) break;
 
-          // Write raw bytes directly to terminal
-          term.write(value);
+          // Write data with timestamps
+          writeWithTimestamp(value);
         }
       } catch (error) {
         if (appState.readLoopActive && appState.isConnected && appState.shouldReconnect) {
@@ -324,7 +360,7 @@
       updateStatus('reconnecting');
       updateButtons();
 
-      term.writeln('\n[DISCONNECTED] Reconnecting...');
+      term.writeln('\n' + getTimestamp() + ' [DISCONNECTED] Reconnecting...');
 
       // Wait initial delay for USB to re-enumerate
       await sleep(appState.reconnectDelay);
@@ -350,9 +386,10 @@
               // Success!
               appState.isReconnecting = false;
               appState.isConnected = true;
+              appState.isNewLine = true;
               updateStatus('connected');
               updateButtons();
-              term.writeln('\n[RECONNECTED]');
+              term.writeln('\n' + getTimestamp() + ' [RECONNECTED]');
 
               // Restart read loop
               startReadLoop();
@@ -376,7 +413,7 @@
       appState.isReconnecting = false;
       updateStatus('disconnected');
       updateButtons();
-      term.writeln('\n[RECONNECT] Stopped by user');
+      term.writeln('\n' + getTimestamp() + ' [RECONNECT] Stopped by user');
     }
 
     // Connect to ESP device
@@ -397,10 +434,11 @@
         // Update state and UI
         appState.isConnected = true;
         appState.shouldReconnect = true;
+        appState.isNewLine = true;
         updateStatus('connected');
         updateButtons();
 
-        term.writeln('[CONNECTED] Device connected\n');
+        term.writeln(getTimestamp() + ' [CONNECTED] Device connected\n');
 
         // Start reading
         startReadLoop();
@@ -427,11 +465,13 @@
       appState.isConnected = false;
       appState.isReconnecting = false;
       appState.transport = null;
+      appState.lineBuffer = '';
+      appState.isNewLine = true;
 
       updateStatus('disconnected');
       updateButtons();
 
-      term.writeln('\n[STOPPED]\n');
+      term.writeln('\n' + getTimestamp() + ' [STOPPED]\n');
     }
 
     // Save log to file
@@ -473,6 +513,7 @@
     function clearLog() {
       if (confirm('Clear all logs? This cannot be undone.')) {
         term.clear();
+        appState.isNewLine = true;
       }
     }
 
@@ -481,7 +522,7 @@
       if (!appState.transport || !appState.isConnected) return;
 
       try {
-        term.writeln('[RESETTING DEVICE]');
+        term.writeln(getTimestamp() + ' [RESETTING DEVICE]');
 
         // Classic reset sequence for ESP32
         // Set IO0=HIGH, EN=LOW (chip in reset)
@@ -493,7 +534,7 @@
         await appState.transport.setRTS(false);
         await new Promise(resolve => setTimeout(resolve, 50));
 
-        term.writeln('[DEVICE RESET COMPLETE]');
+        term.writeln(getTimestamp() + ' [DEVICE RESET COMPLETE]');
       } catch (error) {
         handleError('Reset failed', error);
       }
@@ -509,7 +550,8 @@
     // Initialize app
     function initializeApp() {
       if (checkBrowserSupport()) {
-        term.writeln('ESP Logger ready. Click "Connect" to start.\n');
+        term.writeln(getTimestamp() + ' ESP Logger ready. Click "Connect" to start.\n');
+        appState.isNewLine = true;
       }
     }
 
