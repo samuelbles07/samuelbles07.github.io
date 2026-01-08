@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESP Logger</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@4.19.0/css/xterm.css">
+  <script src="https://cdn.jsdelivr.net/npm/xterm@4.19.0/lib/xterm.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-color: #e0e0e0;
+    }
+
+    #app-wrapper {
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-color: #f5f5f5;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    #controls {
+      background-color: #ffffff;
+      padding: 1rem;
+      border-bottom: 2px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    #status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background-color: #f8f8f8;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    #status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      transition: background-color 0.3s ease;
+    }
+
+    .status-disconnected {
+      background-color: #dc3545;
+    }
+
+    .status-connecting {
+      background-color: #ffc107;
+    }
+
+    .status-connected {
+      background-color: #28a745;
+    }
+
+    .status-reconnecting {
+      background-color: #ff9800;
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    button {
+      padding: 0.6rem 1.2rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #connectBtn {
+      background-color: #007bff;
+      color: white;
+    }
+
+    #connectBtn:hover:not(:disabled) {
+      background-color: #0056b3;
+    }
+
+    #stopBtn {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    #stopBtn:hover:not(:disabled) {
+      background-color: #c82333;
+    }
+
+    #saveBtn {
+      background-color: #28a745;
+      color: white;
+    }
+
+    #saveBtn:hover:not(:disabled) {
+      background-color: #218838;
+    }
+
+    #resetBtn {
+      background-color: #ff9800;
+      color: white;
+    }
+
+    #resetBtn:hover:not(:disabled) {
+      background-color: #e68900;
+    }
+
+    #clearBtn {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    #clearBtn:hover:not(:disabled) {
+      background-color: #5a6268;
+    }
+
+    #log-container {
+      flex: 1;
+      overflow: hidden;
+      background-color: #000000;
+      padding: 1rem;
+    }
+
+    #terminal {
+      width: 100%;
+      height: 100%;
+    }
+
+    #browser-warning {
+      background-color: #f8d7da;
+      color: #721c24;
+      padding: 1rem;
+      border-bottom: 2px solid #f5c6cb;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="app-wrapper">
+    <div id="browser-warning">
+      <strong>Browser Not Supported:</strong> Web Serial API is required. Please use Chrome 89+ or Edge 89+.
+    </div>
+
+    <div id="controls">
+      <div id="status-indicator">
+        <span id="status-dot" class="status-disconnected"></span>
+        <span id="status-text">Disconnected</span>
+      </div>
+      <button id="connectBtn">Connect</button>
+      <button id="stopBtn" disabled>Stop</button>
+      <button id="resetBtn" disabled>Reset Device</button>
+      <button id="saveBtn">Save Log</button>
+      <button id="clearBtn">Clear Log</button>
+    </div>
+
+    <div id="log-container">
+      <div id="terminal"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    // Import Transport from esptool-js CDN
+    import { Transport } from 'https://unpkg.com/esptool-js/bundle.js';
+
+    // Initialize xterm.js terminal
+    const term = new Terminal({
+      cols: 120,
+      rows: 40,
+      scrollback: 100000
+    });
+    term.open(document.getElementById('terminal'));
+
+    // Application state
+    const appState = {
+      isConnected: false,
+      isReconnecting: false,
+      shouldReconnect: true,
+      transport: null,
+      device: null,
+      deviceInfo: null,
+      reconnectDelay: 1000,
+      readLoopActive: false
+    };
+
+    // Get DOM elements
+    const elements = {
+      connectBtn: document.getElementById('connectBtn'),
+      stopBtn: document.getElementById('stopBtn'),
+      resetBtn: document.getElementById('resetBtn'),
+      saveBtn: document.getElementById('saveBtn'),
+      clearBtn: document.getElementById('clearBtn'),
+      statusText: document.getElementById('status-text'),
+      statusDot: document.getElementById('status-dot')
+    };
+
+    // Check browser support
+    function checkBrowserSupport() {
+      if (!('serial' in navigator)) {
+        document.getElementById('browser-warning').style.display = 'block';
+        elements.connectBtn.disabled = true;
+        return false;
+      }
+      return true;
+    }
+
+    // Sleep helper function
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+
+    // Update status indicator
+    function updateStatus(state) {
+      elements.statusDot.className = `status-${state}`;
+
+      const labels = {
+        disconnected: 'Disconnected',
+        connecting: 'Connecting...',
+        connected: 'Connected',
+        reconnecting: 'Reconnecting...'
+      };
+      elements.statusText.textContent = labels[state];
+    }
+
+    // Update button states
+    function updateButtons() {
+      elements.connectBtn.disabled = appState.isConnected || appState.isReconnecting;
+      elements.stopBtn.disabled = !appState.isConnected && !appState.isReconnecting;
+      elements.resetBtn.disabled = !appState.isConnected;
+    }
+
+    // Handle errors with user-friendly messages
+    function handleError(context, error) {
+      let message = `${context}: `;
+
+      if (error.name === 'NotFoundError') {
+        message += 'No device selected';
+      } else if (error.name === 'InvalidStateError') {
+        message += 'Port already in use';
+      } else if (error.name === 'NotSupportedError') {
+        message += 'Web Serial API not supported';
+      } else if (error.name === 'SecurityError') {
+        message += 'Permission denied';
+      } else {
+        message += error.message || 'Unknown error';
+      }
+
+      term.writeln(`\n[ERROR] ${message}\n`);
+      alert(message);
+      console.error(context, error);
+    }
+
+    // Start the read loop to capture serial output
+    async function startReadLoop() {
+      if (!appState.transport || appState.readLoopActive) return;
+
+      appState.readLoopActive = true;
+
+      try {
+        const readLoop = appState.transport.rawRead();
+
+        while (appState.readLoopActive) {
+          const { value, done } = await readLoop.next();
+
+          if (done) {
+            // Connection closed
+            if (appState.isConnected && appState.shouldReconnect) {
+              handleDeviceLost();
+            }
+            break;
+          }
+
+          if (!value) break;
+
+          // Write raw bytes directly to terminal
+          term.write(value);
+        }
+      } catch (error) {
+        if (appState.readLoopActive && appState.isConnected && appState.shouldReconnect) {
+          console.error('Read loop error:', error);
+          handleDeviceLost();
+        }
+      }
+    }
+
+    // Handle device lost event with automatic reconnection
+    async function handleDeviceLost() {
+      if (!appState.shouldReconnect) return;
+
+      appState.isConnected = false;
+      appState.isReconnecting = true;
+      appState.readLoopActive = false;
+      updateStatus('reconnecting');
+      updateButtons();
+
+      term.writeln('\n[DISCONNECTED] Reconnecting...');
+
+      // Wait initial delay for USB to re-enumerate
+      await sleep(appState.reconnectDelay);
+
+      // Infinite retry loop - only stops if user clicks Stop
+      while (appState.shouldReconnect) {
+        try {
+          const ports = await navigator.serial.getPorts();
+
+          if (ports.length > 0) {
+            const matchingPort = ports.find(port => {
+              const info = port.getInfo();
+              return info.usbVendorId === appState.deviceInfo.usbVendorId &&
+                     info.usbProductId === appState.deviceInfo.usbProductId;
+            });
+
+            if (matchingPort) {
+              // Device found - create new Transport and reconnect
+              appState.device = matchingPort;
+              appState.transport = new Transport(matchingPort, false);
+              await appState.transport.connect(115200);
+
+              // Success!
+              appState.isReconnecting = false;
+              appState.isConnected = true;
+              updateStatus('connected');
+              updateButtons();
+              term.writeln('\n[RECONNECTED]');
+
+              // Restart read loop
+              startReadLoop();
+              return;
+            }
+          }
+
+          // Device not found - show dot
+          term.write('.');
+
+        } catch (error) {
+          // Connection failed - show dot
+          term.write('.');
+          console.error('Reconnect attempt failed:', error);
+        }
+
+        await sleep(appState.reconnectDelay);
+      }
+
+      // Loop exited because user clicked Stop
+      appState.isReconnecting = false;
+      updateStatus('disconnected');
+      updateButtons();
+      term.writeln('\n[RECONNECT] Stopped by user');
+    }
+
+    // Connect to ESP device
+    async function connectDevice() {
+      try {
+        updateStatus('connecting');
+
+        // Request port from user
+        appState.device = await navigator.serial.requestPort();
+        appState.deviceInfo = appState.device.getInfo();
+
+        // Create transport
+        appState.transport = new Transport(appState.device, false);
+
+        // Connect at fixed 115200 baud
+        await appState.transport.connect(115200);
+
+        // Update state and UI
+        appState.isConnected = true;
+        appState.shouldReconnect = true;
+        updateStatus('connected');
+        updateButtons();
+
+        term.writeln('[CONNECTED] Device connected\n');
+
+        // Start reading
+        startReadLoop();
+      } catch (error) {
+        updateStatus('disconnected');
+        updateButtons();
+        handleError('Connection failed', error);
+      }
+    }
+
+    // Stop logging and disconnect
+    async function stopLogging() {
+      appState.shouldReconnect = false;  // Stop reconnection loop
+      appState.readLoopActive = false;   // Stop read loop
+
+      if (appState.transport) {
+        try {
+          await appState.transport.disconnect();
+        } catch (error) {
+          console.error('Disconnect error:', error);
+        }
+      }
+
+      appState.isConnected = false;
+      appState.isReconnecting = false;
+      appState.transport = null;
+
+      updateStatus('disconnected');
+      updateButtons();
+
+      term.writeln('\n[STOPPED]\n');
+    }
+
+    // Save log to file
+    function saveLog() {
+      // Extract text from terminal buffer
+      let logContent = '';
+      const buffer = term.buffer.active;
+
+      for (let i = 0; i < buffer.length; i++) {
+        const line = buffer.getLine(i);
+        if (line) {
+          logContent += line.translateToString(true) + '\n';
+        }
+      }
+
+      if (!logContent.trim()) {
+        alert('No logs to save');
+        return;
+      }
+
+      const blob = new Blob([logContent], { type: 'text/plain' });
+
+      // Generate filename with timestamp: esp-log-2026-01-07-143025.txt
+      const now = new Date();
+      const filename = `esp-log-${now.toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
+
+      // Create temporary download link
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+
+      // Cleanup
+      URL.revokeObjectURL(url);
+    }
+
+    // Clear log display
+    function clearLog() {
+      if (confirm('Clear all logs? This cannot be undone.')) {
+        term.clear();
+      }
+    }
+
+    // Reset the ESP device
+    async function resetDevice() {
+      if (!appState.transport || !appState.isConnected) return;
+
+      try {
+        term.writeln('[RESETTING DEVICE]');
+
+        // Classic reset sequence for ESP32
+        // Set IO0=HIGH, EN=LOW (chip in reset)
+        await appState.transport.setDTR(false);
+        await appState.transport.setRTS(true);
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Set IO0=HIGH, EN=HIGH (chip running)
+        await appState.transport.setRTS(false);
+        await new Promise(resolve => setTimeout(resolve, 50));
+
+        term.writeln('[DEVICE RESET COMPLETE]');
+      } catch (error) {
+        handleError('Reset failed', error);
+      }
+    }
+
+    // Wire up event listeners
+    elements.connectBtn.addEventListener('click', connectDevice);
+    elements.stopBtn.addEventListener('click', stopLogging);
+    elements.resetBtn.addEventListener('click', resetDevice);
+    elements.saveBtn.addEventListener('click', saveLog);
+    elements.clearBtn.addEventListener('click', clearLog);
+
+    // Initialize app
+    function initializeApp() {
+      if (checkBrowserSupport()) {
+        term.writeln('ESP Logger ready. Click "Connect" to start.\n');
+      }
+    }
+
+    // Start the app
+    initializeApp();
+  </script>
+</body>
+</html>
