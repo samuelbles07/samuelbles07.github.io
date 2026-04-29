@@ -237,7 +237,7 @@
 
   <script type="module">
     // Import Transport from esptool-js CDN
-    import { Transport } from 'https://unpkg.com/esptool-js/bundle.js';
+    import { Transport } from 'https://unpkg.com/esptool-js@0.6.0/bundle.js';
 
     // Initialize xterm.js terminal
     const term = new Terminal({
@@ -261,7 +261,6 @@
       deviceInfo: null,
       reconnectDelay: 1000,
       readLoopActive: false,
-      lineBuffer: '',
       isNewLine: true
     };
 
@@ -378,30 +377,20 @@
       appState.readLoopActive = true;
 
       try {
-        const readLoop = appState.transport.rawRead();
-
-        while (appState.readLoopActive) {
-          const { value, done } = await readLoop.next();
-
-          if (done) {
-            // Connection closed
-            if (appState.isConnected && appState.shouldReconnect) {
-              handleDeviceLost();
-            }
-            break;
-          }
-
-          if (!value) break;
-
-          // Write data with timestamps
-          writeWithTimestamp(value);
-        }
+        await appState.transport.rawRead(
+          (data) => {
+            writeWithTimestamp(data);
+          },
+          () => !appState.readLoopActive
+        );
       } catch (error) {
-        if (appState.readLoopActive && appState.isConnected && appState.shouldReconnect) {
+        if (appState.readLoopActive) {
           console.error('Read loop error:', error);
-          handleDeviceLost();
         }
       }
+
+      // rawRead resolved or threw — stream ended
+      // Device lost callback will handle reconnection
     }
 
     // Handle device lost event with automatic reconnection
@@ -432,10 +421,17 @@
             });
 
             if (matchingPort) {
-              // Device found - create new Transport and reconnect
+              // Device found - update transport with new port and reconnect
               appState.device = matchingPort;
-              appState.transport = new Transport(matchingPort, false);
+              appState.transport.updateDevice(matchingPort);
               await appState.transport.connect(115200);
+
+              // Re-register device lost callback on reconnected transport
+              appState.transport.setDeviceLostCallback(() => {
+                if (appState.shouldReconnect && appState.isConnected) {
+                  handleDeviceLost();
+                }
+              });
 
               // Success!
               appState.isReconnecting = false;
@@ -482,6 +478,13 @@
         // Create transport
         appState.transport = new Transport(appState.device, false);
 
+        // Register device lost callback for auto-reconnection
+        appState.transport.setDeviceLostCallback(() => {
+          if (appState.shouldReconnect && appState.isConnected) {
+            handleDeviceLost();
+          }
+        });
+
         // Connect at fixed 115200 baud
         await appState.transport.connect(115200);
 
@@ -510,6 +513,8 @@
 
       if (appState.transport) {
         try {
+          // Clear device lost callback to prevent reconnection during disconnect
+          appState.transport.setDeviceLostCallback(null);
           await appState.transport.disconnect();
         } catch (error) {
           console.error('Disconnect error:', error);
@@ -519,7 +524,6 @@
       appState.isConnected = false;
       appState.isReconnecting = false;
       appState.transport = null;
-      appState.lineBuffer = '';
       appState.isNewLine = true;
 
       updateStatus('disconnected');
